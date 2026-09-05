@@ -1,4 +1,7 @@
 name: Rond Watcher
+concurrency:
+  group: rond-watcher
+  cancel-in-progress: false
 
 on:
   schedule:
