@@ -1,0 +1,39 @@
+name: Rond Watcher
+
+on:
+  schedule:
+    # هر ۱۵ دقیقه یک‌بار اجرا می‌شه (زمان‌بندی GitHub بر اساس UTC هست)
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}   # امکان اجرای دستی از تب Actions در گیت‌هاب
+
+permissions:
+  contents: write   # برای کامیت کردن state.json به‌عقب لازمه
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run watcher
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python rond_watcher.py
+
+      - name: Commit updated state
+        run: |
+          git config user.name "rond-watcher-bot"
+          git config user.email "actions@github.com"
+          git add state.json
+          git diff --quiet --cached || git commit -m "update seen numbers state"
+          git push
