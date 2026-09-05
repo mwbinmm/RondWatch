@@ -34,6 +34,7 @@ jobs:
         run: |
           git config user.name "rond-watcher-bot"
           git config user.email "actions@github.com"
+          git pull --rebase origin main
           git add state.json
           git diff --quiet --cached || git commit -m "update seen numbers state"
           git push
